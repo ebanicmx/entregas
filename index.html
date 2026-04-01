@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BANIC</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+margin:0;
+height:100%;
+overflow:hidden;
+font-family:Segoe UI;
+background:url('https://i.ibb.co/Q3K7pJGS/imgi-27-looks-para-entrenar-zara.png') center/cover no-repeat;
+color:#fff;
+}
+
+.wrapper{
+position:fixed;
+inset:0;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.card{
+width:100%;
+max-width:420px;
+height:90vh;
+overflow-y:auto;
+padding:20px;
+border-radius:20px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.titulo{text-align:center;}
+.subtitulo{font-size:12px;opacity:0.8;margin-top:-8px;margin-bottom:10px;}
+label{font-size:12px;margin-top:5px;}
+
+input,select,button{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+}
+
+input,select{
+background:rgba(0,0,0,0.5);
+color:#fff;
+border:1px solid rgba(255,255,255,0.2);
+}
+
+button{
+background:#fff;
+color:#000;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:disabled{opacity:0.5;cursor:not-allowed;}
+
+.calendar-box{
+display:none;
+background:rgba(0,0,0,0.5);
+padding:8px;
+border-radius:10px;
+}
+
+.days,.hours{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:4px;
+}
+
+.day,.hour{
+padding:6px;
+font-size:11px;
+background:#333;
+border-radius:6px;
+cursor:pointer;
+text-align:center;
+}
+
+.day.active,.hour.active{
+background:#fff;
+color:#000;
+}
+
+.terms{
+height:180px;
+overflow:auto;
+font-size:11px;
+background:rgba(0,0,0,0.5);
+padding:10px;
+border-radius:10px;
+line-height:1.4;
+}
+
+/* ALERTA */
+.custom-alert{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.6);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:99999;
+}
+
+.alert-box{
+width:90%;
+max-width:320px;
+background:linear-gradient(180deg,#0a0a0a,#1a1a1a);
+border-radius:20px;
+padding:20px;
+text-align:center;
+color:#fff;
+}
+
+.alert-box button{
+margin-top:15px;
+width:100%;
+padding:10px;
+border-radius:10px;
+background:#000;
+color:#fff;
+border:1px solid #fff;
+}
+
+/* LOADER */
+.loader{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
+color:#fff;
+text-align:center;
+}
+
+@keyframes spin{
+0%{transform:rotate(0)}
+100%{transform:rotate(360deg)}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+<div class="card">
+
+<div class="titulo">
+<h2>BANIC</h2>
+<div class="subtitulo">Sistema de entregas</div>
+</div>
+
+<input id="nombre" placeholder="Nombre completo">
+<input id="producto" placeholder="Producto">
+<input id="talla" placeholder="Talla">
+
+<label>Puntos de entrega</label> <select id="punto">
+
+<option value="">Selecciona una</option>
+<option>UNE</option>
+<option>Comisaria</option>
+<option>Clinica 93</option>
+<option>Coppel arcos loma dorada</option>
+<option>Walmart</option>
+<option>Plaza altea</option>
+<option>Chedrahui</option>
+<option>Soriana rio nilo</option>
+</select>
+
+<div id="calendarBox" class="calendar-box">
+<div id="dias" class="days"></div>
+<div id="horas" class="hours"></div>
+<button onclick="confirmarFecha()">Confirmar fecha ✔</button>
+</div>
+
+<label>Paquetería Casa Blanca</label> <select id="paq">
+
+<option value="">Selecciona una</option>
+<option>Matriz Juarez</option>
+<option>Periferico Norte</option>
+<option>SUR</option>
+<option>Oblatos</option>
+<option>Tetlan</option>
+<option>Tonala</option>
+<option>Aviacion</option>
+<option>Tlaquepaque Centro</option>
+<option>Tlajomulco</option>
+</select>
+
+<input id="fechaFinal" placeholder="Fecha seleccionada" readonly>
+
+<div class="terms">
+<b>Términos y Condiciones de Venta y Entrega</b><br><br>
+
+El presente documento establece las normas y procedimientos para la adquisición y entrega de artículos. Al realizar una compra, el Comprador acepta los siguientes puntos:<br><br>
+
+<b>1. Entregas Personales (Citas)</b><br>
+Punto de Encuentro: La entrega se realizará exclusivamente en el lugar acordado previamente. Se recomienda que sea un espacio público y concurrido por seguridad de ambas partes.<br><br>
+
+Puntualidad: Se requiere asistencia puntual en la fecha y hora pactadas.<br><br>
+
+Margen de Espera: Se establece un tiempo de cortesía máximo de 15 minutos. Pasado este tiempo, la parte cumplida podrá retirarse y la entrega quedará sujeta a reprogramación.<br><br>
+
+Revisión del Artículo: Es responsabilidad del Comprador inspeccionar el producto (estado, funcionamiento y autenticidad) en el momento del encuentro. Una vez finalizada la entrega, no se aceptarán reclamos por daños estéticos o piezas faltantes.<br><br>
+
+<b>2. Envíos mediante Paquetería Casa Blanca</b><br>
+Pago Anticipado: Si el Comprador elige el método de envío a través de Paquetería Casa Blanca, es requisito indispensable realizar el pago total del artículo antes de gestionar el despacho.<br><br>
+
+Métodos de Pago: El pago deberá efectuarse mediante transferencia electrónica o depósito a la cuenta bancaria estipulada oficialmente dentro de nuestra página web.<br><br>
+
+Validación: El envío se procesará únicamente cuando el pago haya sido confirmado y validado como disponible en la cuenta receptora. No se aceptarán comprobantes de pago como garantía de envío si el saldo no ha sido liberado.<br><br>
+
+<b>3. Protocolos de Pago en Entregas Físicas</b><br>
+Efectivo: Se deberá entregar la cantidad exacta acordada.<br><br>
+
+Transferencias al momento: Si se acuerda el pago vía transferencia en el punto de entrega, el artículo no se entregará físicamente hasta que el movimiento aparezca reflejado en la cuenta del Vendedor.<br><br>
+
+<b>4. Cancelaciones y Reprogramaciones</b><br>
+Cualquier cambio en la logística de entrega (personal o envío) debe notificarse con al menos [X] horas de anticipación.<br><br>
+
+La inasistencia a una cita confirmada sin previo aviso podrá ser motivo de cancelación definitiva de la venta.<br><br>
+
+<b>5. Seguridad y Conducta</b><br>
+Nos reservamos el derecho de cancelar cualquier transacción si se detecta un comportamiento irrespetuoso, intentos de fraude o cualquier actividad que comprometa la integridad de las partes involucradas.
+
+</div>
+
+<label>
+<input type="checkbox" id="check"> Acepto términos
+</label>
+
+<button id="btnEnviar" onclick="enviar()" disabled>Enviar registro 🚀</button>
+
+</div>
+</div>
+
+<script>
+
+// ALERTA
+function mostrarAlerta(msg){
+let d=document.createElement("div");
+d.className="custom-alert";
+d.innerHTML=`<div class="alert-box">
+<h3>⚠️ Aviso</h3>
+<p>${msg}</p>
+<button onclick="this.closest('.custom-alert').remove()">Entendido</button>
+</div>`;
+document.body.appendChild(d);
+}
+
+// refs
+const nombre=document.getElementById("nombre");
+const producto=document.getElementById("producto");
+const talla=document.getElementById("talla");
+const punto=document.getElementById("punto");
+const paq=document.getElementById("paq");
+const calendar=document.getElementById("calendarBox");
+const fechaFinal=document.getElementById("fechaFinal");
+const check=document.getElementById("check");
+const btn=document.getElementById("btnEnviar");
+const dias=document.getElementById("dias");
+const horas=document.getElementById("horas");
+
+// botón
+check.onchange=()=>btn.disabled=!check.checked;
+
+// exclusividad
+punto.addEventListener("change",()=>{
+if(punto.value){
+paq.value="";
+paq.disabled=true;
+calendar.style.display="block";
+}else{
+paq.disabled=false;
+calendar.style.display="none";
+fechaFinal.value="";
+}
+});
+
+paq.addEventListener("change",()=>{
+if(paq.value){
+punto.value="";
+punto.disabled=true;
+calendar.style.display="none";
+fechaFinal.value="";
+}else{
+punto.disabled=false;
+}
+});
+
+// agenda
+let dSel=null,hSel=null;
+const nombres=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+
+for(let i=0;i<7;i++){
+let d=new Date();
+d.setDate(d.getDate()+i);
+
+let el=document.createElement("div");
+el.className="day";
+el.innerText=nombres[d.getDay()]+" "+d.getDate()+"/"+(d.getMonth()+1);
+
+el.onclick=()=>{
+document.querySelectorAll(".day").forEach(x=>x.classList.remove("active"));
+el.classList.add("active");
+dSel=new Date(d);
+};
+
+dias.appendChild(el);
+}
+
+for(let h=8;h<=18;h++){
+let el=document.createElement("div");
+el.className="hour";
+el.innerText=(h>12?h-12:h)+":00 "+(h>=12?"PM":"AM");
+
+el.onclick=()=>{
+document.querySelectorAll(".hour").forEach(x=>x.classList.remove("active"));
+el.classList.add("active");
+hSel=h;
+};
+
+horas.appendChild(el);
+}
+
+function confirmarFecha(){
+if(!dSel||hSel===null){
+mostrarAlerta("Selecciona día y hora");
+return;
+}
+
+let f=new Date(dSel);
+f.setHours(hSel,0,0,0);
+
+fechaFinal.value = f.toLocaleString('es-MX',{
+day:'2-digit',
+month:'2-digit',
+year:'numeric',
+hour:'numeric',
+minute:'2-digit',
+hour12:true
+});
+}
+
+// enviar
+function enviar(){
+
+if(!nombre.value) return mostrarAlerta("Falta tu nombre");
+if(!producto.value) return mostrarAlerta("Falta el producto");
+if(!talla.value) return mostrarAlerta("Falta la talla");
+
+if(!punto.value && !paq.value)
+return mostrarAlerta("Selecciona método de entrega");
+
+if(punto.value && !fechaFinal.value)
+return mostrarAlerta("Selecciona fecha y hora");
+
+if(!check.checked)
+return mostrarAlerta("Debes aceptar los términos");
+
+// consecutivo real
+let contador = localStorage.getItem("banic_contador") || 0;
+contador++;
+localStorage.setItem("banic_contador", contador);
+
+let codigo = "BN-" + String(contador).padStart(4,"0");
+
+// loader
+let loader=document.createElement("div");
+loader.className="loader";
+loader.innerHTML=`
+<div style="width:60px;height:60px;border:6px solid #333;border-top:6px solid #fff;border-radius:50%;animation:spin 1s linear infinite"></div>
+<p style="margin-top:20px;">
+Agendando entrega...<br>
+no cierres la página,<br>
+serás dirigido a WhatsApp
+</p>
+`;
+
+document.body.appendChild(loader);
+
+let mensaje=`Pedido BANIC:
+Código: ${codigo}
+Nombre: ${nombre.value}
+Producto: ${producto.value}
+Talla: ${talla.value}
+Entrega: ${punto.value || paq.value}
+Fecha: ${fechaFinal.value}`;
+
+let url="https://wa.me/523318297670?text="+encodeURIComponent(mensaje);
+
+setTimeout(()=>{
+window.open(url,"_blank");
+loader.remove();
+
+// limpiar
+nombre.value="";
+producto.value="";
+talla.value="";
+punto.value="";
+paq.value="";
+fechaFinal.value="";
+check.checked=false;
+btn.disabled=true;
+paq.disabled=false;
+punto.disabled=false;
+calendar.style.display="none";
+document.querySelectorAll(".day").forEach(x=>x.classList.remove("active"));
+document.querySelectorAll(".hour").forEach(x=>x.classList.remove("active"));
+
+},5000);
+
+}
+
+</script>
+
+</body>
+</html>
